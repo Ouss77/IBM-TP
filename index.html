@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>✈ TravelBloom</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="AboutUs.html">About</a></li>
+                <li><a href="ContactUs.html">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input class="input" type="text" placeholder="Inter a destination or a keyword">
+            <button type="submit">Search</button>
+            <button type="reset">Clear</button>
+        </div>
+    </header>
+    <main class="main">
+        <section class="main-page">
+            <div class="title"><h1>Explore Dream <br> destination</h1></div>
+            <div class="description"><p>Planning and selling transportations, accommodations, insurance and other travel services
+                Cooperating with clients to determine their needs and advising them appropriate destination, modes of transportations, travel dates, costs and accommodations
+                Providing relevant information, brochures and publications (guides, local customs, maps, regulations, events etc) to travelers</p></div>
+            <div class="button2"><button>Book Now</button></div>
+            <section class="social-icons">
+                    <img src="social.avif" alt="" width="300px" height="80px">
+            </section>
+        </section>
+        
+        <div id="countriesContainer" class="data-container"></div>
+    </main>
+<script>
+
+async function fetchData() {
+    try {
+        const response = await fetch('travelapi.json');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
+
+async function displayCountries(searchTerm = '') {
+    const data = await fetchData();
+    const countriesData = data.countries;
+    const countriesContainer = document.getElementById('countriesContainer');
+
+    // Clear previous content
+    countriesContainer.innerHTML = '';
+
+    // Create a list to display countries
+    const countriesList = document.createElement('ul');
+    countriesList.classList.add('countries-list'); // Add class to countries list
+
+    countriesData.forEach(country => {
+        // Check if the country name includes the search term
+        if (country.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            const countryItem = document.createElement('li');
+            countryItem.classList.add('country-item'); // Add class to country item
+            countryItem.innerHTML = `<strong>${country.name}</strong>`;
+            
+            // Create a list to display cities for each country
+            const citiesList = document.createElement('ul');
+            citiesList.classList.add('cities-list'); // Add class to cities list
+
+            country.cities.forEach(city => {
+                const cityItem = document.createElement('li');
+                cityItem.classList.add('city-item'); // Add class to city item
+                cityItem.innerHTML = `
+                    <img src="${city.imageUrl}" alt="${city.name}" style="max-width: 700px;"><br>
+                    <strong>${city.name}</strong><br>
+                    ${city.description}
+                `;
+                citiesList.appendChild(cityItem);
+            });
+
+            countryItem.appendChild(citiesList);
+
+            countriesList.appendChild(countryItem);
+        }
+    });
+
+    countriesContainer.appendChild(countriesList);
+}
+
+// Add event listener to trigger search on input in the search input field
+document.querySelector('.input').addEventListener('input', function() {
+    const searchTerm = this.value;
+    displayCountries(searchTerm);
+});
+
+// Add event listener to the search button
+document.querySelector('.search-bar button[type="submit"]').addEventListener('click', function() {
+    const searchTerm = document.querySelector('.input').value;
+    displayCountries(searchTerm);
+});
+
+// Add event listener to trigger search on pressing "Enter" key
+document.querySelector('.input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        const searchTerm = document.querySelector('.input').value;
+        displayCountries(searchTerm);
+    }
+});
+// Function to clear the search input field and reset displayed countries
+function clearSearch() {
+    document.querySelector('.input').value = ' '; // Clear the input field
+    displayCountries(); // Reset displayed countries
+}
+
+// Add event listener to the clear button
+document.querySelector('.search-bar button[type="reset"]').addEventListener('click', clearSearch);
+
+</script>
+    
+</body>
+</html>
